@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../providers/product_provider.dart';
 import '../providers/client_provider.dart';
 import 'home_page.dart';
-import 'clients_page.dart';
 import 'products_page.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -18,7 +17,6 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final List<Widget> _pages = const [
     HomePage(),
-    ClientsPage(),
     ProductsPage(),
   ];
 
@@ -39,13 +37,13 @@ class _MainNavigationState extends State<MainNavigation> {
         children: _pages,
       ),
       bottomNavigationBar: NavigationBar(
+        backgroundColor: Colors.white,
+        indicatorColor: Colors.deepOrange.withOpacity(0.2),
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home), label: "Início"),
-          NavigationDestination(icon: Icon(Icons.people), label: "Clientes"),
-
-          NavigationDestination(icon: Icon(Icons.store), label: "Restaurantes"),
+          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home, color: Colors.deepOrange), label: "Início"),
+          NavigationDestination(icon: Icon(Icons.storefront_outlined), selectedIcon: Icon(Icons.storefront, color: Colors.deepOrange), label: "Restaurantes"),
         ],
       ),
     );

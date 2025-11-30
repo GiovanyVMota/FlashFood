@@ -29,8 +29,13 @@ class _FormProdutoState extends State<FormProduto> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final produto = ModalRoute.of(context)!.settings.arguments as Product?;
-    _loadFormData(produto);
+    final args = ModalRoute.of(context)!.settings.arguments;
+
+    if (args is Product) {
+      _loadFormData(args);
+    } else if (args is Map) {
+      _dados['categoria'] = args['categoriaPreenchida'];
+    }
   }
 
   @override

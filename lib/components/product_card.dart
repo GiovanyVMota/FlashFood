@@ -18,15 +18,15 @@ class ProductCard extends StatelessWidget {
         arguments: produto,
       ),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 5),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 4,
+              spreadRadius: 0,
+              blurRadius: 6,
               offset: const Offset(0, 2),
             ),
           ],
@@ -34,79 +34,88 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Imagem no Topo (Estilo Vitrine)
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                  child: SizedBox(
-                    height: 100,
-                    width: double.infinity,
-                    child: produto.imagemUrl.isNotEmpty
-                        ? Image.network(
-                            produto.imagemUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (ctx, error, stack) => Container(
-                              color: Colors.grey[200],
-                              child: const Icon(Icons.fastfood, color: Colors.grey),
-                            ),
-                          )
-                        : Container(
-                            color: Colors.orange.withOpacity(0.1),
-                            child: const Icon(Icons.fastfood, color: Colors.deepOrange),
-                          ),
-                  ),
-                ),
-                // Botão de deletar discreto no canto
-                Positioned(
-                  top: 4,
-                  right: 4,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.white.withOpacity(0.7),
-                    radius: 14,
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.close, size: 16, color: Colors.red),
-                      onPressed: () => _confirmarExclusao(context),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            
-            // 2. Informações embaixo
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            // 1. Foto do Prato
+            Expanded(
+              flex: 6, // Ocupa 60% da altura
+              child: Stack(
                 children: [
-                  Text(
-                    produto.nome,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: Colors.black87,
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Image.network(
+                        produto.imagemUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (ctx, error, stack) => Container(
+                          color: Colors.grey[100],
+                          child: const Icon(Icons.fastfood, color: Colors.grey),
+                        ),
+                      ),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    produto.descricao,
-                    style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'R\$ ${produto.preco.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Colors.green, // Preço verde igual ao iFood
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                  // Botãozinho de excluir
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: CircleAvatar(
+                      radius: 12,
+                      backgroundColor: Colors.white.withOpacity(0.9),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: const Icon(Icons.close, size: 14, color: Colors.red),
+                        onPressed: () => _confirmarExclusao(context),
+                      ),
                     ),
                   ),
                 ],
+              ),
+            ),
+
+            // 2. Informações do Prato
+            Expanded(
+              flex: 4, // Ocupa 40% da altura
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          produto.nome,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        // Mostra o restaurante de origem
+                        Text(
+                          produto.categoria, 
+                          style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                    
+                    // Preço Verde (Sem moto)
+                    Text(
+                      'R\$ ${produto.preco.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        color: Colors.green, 
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -119,8 +128,8 @@ class ProductCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remover item?'),
-        content: Text('Deseja excluir "${produto.nome}"?'),
+        title: const Text('Excluir produto?'),
+        content: Text('Deseja remover "${produto.nome}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
