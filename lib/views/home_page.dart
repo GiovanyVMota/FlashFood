@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/product_provider.dart';
 import '../components/product_card.dart';
-import '../routes/app_routes.dart';
+// import '../routes/app_routes.dart'; // Rota de clientes removida
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,10 +15,8 @@ class _HomePageState extends State<HomePage> {
   String _tipoEntrega = 'Casa';
   String _termoBusca = '';
 
-  // --- MAPA INTELIGENTE DE CATEGORIAS ---
-  // Ensina o app quais restaurantes pertencem a qual categoria
   final Map<String, List<String>> _mapaCategorias = {
-    'Marmita': ['Outback', 'Madero'], // Exemplo
+    'Marmita': ['Outback', 'Madero'],
     'Lanches': ['Burger King', 'McDonald\'s', 'Madero'],
     'Pizza': ['Pizza Hut', 'Domino\'s', 'Bráz Elettrica'],
     'Japonesa': ['Sushi House', 'Mori Ohta', 'Gendai'],
@@ -30,18 +28,13 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
     
-    // LÓGICA DE FILTRO CORRIGIDA
     final produtos = _termoBusca.isEmpty
         ? productProvider.products
         : productProvider.products.where((p) {
-            // 1. Verifica se o termo busca é uma Categoria conhecida (ex: clicou no botão "Pizza")
             if (_mapaCategorias.containsKey(_termoBusca)) {
               final restaurantesDessaCategoria = _mapaCategorias[_termoBusca]!;
-              // Se a categoria do produto (que é o nome do restaurante) estiver na lista, mostra
               return restaurantesDessaCategoria.contains(p.categoria);
             }
-            
-            // 2. Se não for categoria, faz a busca normal por texto (Nome do prato ou Restaurante)
             return p.nome.toLowerCase().contains(_termoBusca.toLowerCase()) ||
                    p.categoria.toLowerCase().contains(_termoBusca.toLowerCase());
           }).toList();
@@ -52,15 +45,9 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: CircleAvatar(
-              backgroundColor: Colors.grey[200],
-              child: const Icon(Icons.person, color: Colors.grey),
-            ),
-            onPressed: () => Navigator.pushNamed(context, AppRoutes.clients),
-          ),
-          const SizedBox(width: 16),
+        // Removido o botão de Clientes antigo daqui, pois agora temos a aba Perfil
+        actions: const [
+           SizedBox(width: 16),
         ],
         title: DropdownButtonHideUnderline(
           child: DropdownButton<String>(
@@ -108,7 +95,6 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Só mostra categorias e banner se não estiver filtrando
             if (_termoBusca.isEmpty) ...[
               _buildCategorySection(context),
               _buildBannerSection(),
