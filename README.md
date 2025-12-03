@@ -1,73 +1,103 @@
-# FlashFood App 🍔🍟
+🍔 FlashFood App — Delivery em Flutter
 
-**Disciplina:** Desenvolvimento Mobile II
-**Entrega:** Desafio Final
+Disciplina: Desenvolvimento Mobile II
+Projeto: Desafio Final
 
----
+👨‍💻 Integrantes do Grupo
 
-## 👨‍💻 Integrantes do Grupo
-* **Hiago**
-* **Tallis**
-* **Marcos**
-* **Giovany**
+Hiago
 
----
+Tallis
 
-## 📱 Sobre o Projeto
-O **FlashFood** é uma aplicação de delivery desenvolvida em Flutter, criada para demonstrar uma arquitetura robusta (MVC) e a integração completa entre um aplicativo móvel e uma API RESTful.
+Marcos
 
-O objetivo principal é permitir a gestão de restaurantes e seus cardápios, oferecendo funcionalidades de **CRUD completo** (Criar, Ler, Atualizar e Deletar) para as entidades principais, além de um sistema de autenticação e uma interface moderna focada na experiência do usuário (UX).
+Giovany
 
----
+📱 Sobre o Projeto
 
-## 🚀 Funcionalidades
+O FlashFood é um aplicativo de delivery desenvolvido em Flutter, utilizando arquitetura MVC, integração completa com API REST e um fluxo completo de autenticação.
 
-O projeto atende a todos os requisitos do desafio final:
+A proposta é permitir o gerenciamento de restaurantes e seus produtos, com operações de CRUD para todas as entidades. O app também traz uma interface moderna e focada no usuário, inspirado em grandes apps do mercado como iFood.
 
-### 1. Gestão de Restaurantes (CRUD)
-* **Listagem:** Visualização dos restaurantes disponíveis na tela principal.
-* **Cadastro:** Adição de novos estabelecimentos com validação de formulário.
-* **Edição:** Atualização de dados cadastrais (nome, categoria, imagem).
-* **Remoção:** Exclusão de restaurantes do banco de dados.
+🚀 Funcionalidades
+🔐 Autenticação
 
-### 2. Gestão de Produtos (CRUD)
-* **Cardápio Dinâmico:** Os produtos são filtrados e exibidos especificamente para o restaurante selecionado.
-* **Cadastro de Itens:** Adição de produtos com foto, descrição e preço.
-* **Atualização:** Edição de detalhes do produto.
-* **Exclusão:** Remoção de itens do cardápio.
-* **Atualização Automática:** O campo `data_atualizado` é gerido automaticamente pelo banco de dados (Timestamp).
+Cadastro e login de usuários
 
-### 3. Integração Backend & Banco de Dados
-* **API REST:** Comunicação via HTTP (GET, POST, PUT, DELETE).
-* **Persistência:** Banco de dados MySQL para armazenar usuários, restaurantes e produtos.
-* **Autenticação:** Fluxo de Login e Cadastro de usuários.
+Validação de dados
 
-### 4. Interface (UI/UX)
-* **Design Moderno:** Interface inspirada em apps de mercado (ex: iFood).
-* **Feedback Visual:** Indicadores de carregamento, mensagens de sucesso/erro e diálogos de confirmação.
-* **Navegação Fluida:** Uso de rotas nomeadas e barra de navegação inferior.
+Persistência no MySQL
 
----
+🏪 CRUD de Restaurantes
 
-## 🛠️ Tecnologias Utilizadas
+Listagem de restaurantes
 
-* **Mobile:** Flutter (Dart)
-* **Gerência de Estado:** Provider
-* **Backend:** Node.js (Express)
-* **Banco de Dados:** MySQL
-* **Http Client:** Pacote `http`
+Cadastro com validação
 
----
+Edição completa
 
-## ⚙️ Como Executar o Projeto
+Exclusão com confirmação
 
-Siga os passos abaixo para rodar a aplicação em seu ambiente local.
+Exibição em cards com imagem, nota e categoria
 
-### Passo 1: Configurar o Banco de Dados
-1. Abra o **MySQL Workbench** (ou seu terminal MySQL).
-2. Crie o banco de dados e as tabelas executando o script SQL completo abaixo:
+🍔 CRUD de Produtos
 
-```sql
+Produtos filtrados por restaurante
+
+Cadastro com descrição, foto e preço
+
+Atualização de dados
+
+Remoção com confirmação
+
+Campo data_atualizado gerenciado automaticamente pelo banco (timestamp)
+
+🔗 Integração Backend + Banco
+
+API REST em Node.js + Express
+
+Banco MySQL
+
+Rotas GET, POST, PUT, DELETE
+
+Tratamento de erros e respostas padronizadas
+
+🎨 UI/UX
+
+Design moderno e responsivo
+
+Navegação fluida com rotas nomeadas
+
+Animações e feedback visual
+
+Barra inferior de navegação
+
+Componentização das telas
+
+🛠️ Tecnologias Utilizadas
+Mobile
+
+Flutter (Dart)
+
+Provider (Gerência de estado)
+
+http
+
+Backend
+
+Node.js
+
+Express
+
+MySQL
+
+Dotenv
+
+⚙️ Como Rodar o Projeto
+1️⃣ Configurar o Banco de Dados (MySQL)
+
+No MySQL Workbench ou terminal, execute:
+
 CREATE DATABASE IF NOT EXISTS flashfood_db;
 USE flashfood_db;
 
@@ -101,58 +131,49 @@ CREATE TABLE IF NOT EXISTS products (
     data_atualizado TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
 );
-Passo 2: Iniciar o Backend
-Abra o terminal e navegue até a pasta do servidor:
 
-Bash
-
+2️⃣ Iniciar o Backend
 cd backend-flashfood
-Instale as dependências:
-
-Bash
-
 npm install
-Crie um arquivo chamado .env dentro da pasta backend-flashfood com as configurações do seu MySQL:
 
-Snippet de código
+
+Crie o arquivo .env:
 
 DB_HOST=localhost
 DB_USER=root
-DB_PASSWORD=SUA_SENHA_DO_MYSQL
+DB_PASSWORD=SUA_SENHA_AQUI
 DB_NAME=flashfood_db
 PORT=3000
-Inicie o servidor:
 
-Bash
+
+Depois execute:
 
 node server.js
-Você deve ver a mensagem: "Servidor rodando na porta 3000 🚀"
 
-Passo 3: Executar o Aplicativo Mobile
-Em outro terminal, navegue para a raiz do projeto Flutter:
 
-Bash
+Se tudo der certo, aparecerá:
 
-cd ..
-Instale as dependências do Flutter:
+Servidor rodando na porta 3000 🚀
 
-Bash
-
+3️⃣ Rodar o App Flutter
 flutter pub get
-Execute o aplicativo (certifique-se de ter um emulador aberto ou dispositivo conectado):
-
-Bash
-
 flutter run
-🧪 Roteiro de Teste (Para Avaliação)
-Autenticação: Na tela inicial, clique no ícone de perfil e crie uma conta ou faça login.
 
-Criar Restaurante: Vá na aba "Restaurantes", clique no + e adicione um novo local.
 
-Gerenciar Cardápio: Clique no restaurante criado. Dentro dele, adicione novos produtos.
+Certifique-se de que seu emulador/dispositivo está ativo.
 
-Editar/Excluir: Utilize os botões de lápis e lixeira para testar a edição e remoção tanto de restaurantes quanto de produtos.
+🧪 Roteiro de Teste
 
-Verificação: Confira no MySQL Workbench se os dados foram persistidos corretamente.
+Login / Cadastro: Acesse pelo ícone de perfil na Home.
 
-Projeto desenvolvido para fins acadêmicos.
+Criar Restaurante: Vá na aba “Restaurantes” → clique no +.
+
+Gerenciar Produtos: Entre no restaurante criado → adicione produtos.
+
+Editar / Excluir: Teste lápis e lixeira para ambos.
+
+Validação: Confira a persistência de dados pelo MySQL Workbench.
+
+📌 Observações
+
+Projeto desenvolvido para fins acadêmicos, cumprindo todos os requisitos da disciplina Desenvolvimento Mobile II.
