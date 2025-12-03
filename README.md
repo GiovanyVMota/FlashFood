@@ -89,8 +89,8 @@ CREATE TABLE products (
     restaurant_id INT,
     data_atualizado TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
-);
-Passo 2: Iniciar o Backend (Servidor)
+);'''
+###Passo 2: Iniciar o Backend (Servidor)
 Navegue até a pasta do servidor:
 
 Bash
