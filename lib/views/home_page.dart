@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/product_provider.dart';
-import '../components/product_card.dart';
-// import '../routes/app_routes.dart'; // Rota de clientes removida
+import '../providers/auth_provider.dart'; // Garante que o AuthProvider seja encontrado
+import '../routes/app_routes.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,203 +12,304 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String _tipoEntrega = 'Casa';
-  String _termoBusca = '';
+  String _tipoEntrega = 'Entrega em Casa';
 
-  final Map<String, List<String>> _mapaCategorias = {
-    'Marmita': ['Outback', 'Madero'],
-    'Lanches': ['Burger King', 'McDonald\'s', 'Madero'],
-    'Pizza': ['Pizza Hut', 'Domino\'s', 'Bráz Elettrica'],
-    'Japonesa': ['Sushi House', 'Mori Ohta', 'Gendai'],
-    'Doces': ['Cacau Show', 'Sodiê Doces', 'Bacio di Latte'],
-    'Brasileira': ['Outback'],
-  };
+  void _alternarEntrega() {
+    setState(() {
+      _tipoEntrega = _tipoEntrega == 'Entrega em Casa' 
+          ? 'Retirada no Local' 
+          : 'Entrega em Casa';
+    });
+  }
+
+  void _abrirPerfil() {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          height: 250,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                auth.isAuth ? "Olá, ${auth.userName}" : "Perfil", 
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)
+              ),
+              const SizedBox(height: 20),
+              
+              // Verifica se está logado para mostrar as opções certas
+              if (!auth.isAuth) ...[
+                ListTile(
+                  leading: const Icon(Icons.login, color: Colors.deepOrange),
+                  title: const Text("Fazer Login ou Cadastrar"),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.of(context).pushNamed(AppRoutes.login);
+                  },
+                ),
+              ] else ...[
+                ListTile(
+                  leading: const Icon(Icons.person_outline),
+                  title: const Text("Meus Dados"),
+                  onTap: () {},
+                ),
+                ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.red),
+                  title: const Text("Sair da Conta", style: TextStyle(color: Colors.red)),
+                  onTap: () {
+                    auth.logout();
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Você saiu da conta.'))
+                    );
+                  },
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final productProvider = Provider.of<ProductProvider>(context);
-    
-    final produtos = _termoBusca.isEmpty
-        ? productProvider.products
-        : productProvider.products.where((p) {
-            if (_mapaCategorias.containsKey(_termoBusca)) {
-              final restaurantesDessaCategoria = _mapaCategorias[_termoBusca]!;
-              return restaurantesDessaCategoria.contains(p.categoria);
-            }
-            return p.nome.toLowerCase().contains(_termoBusca.toLowerCase()) ||
-                   p.categoria.toLowerCase().contains(_termoBusca.toLowerCase());
-          }).toList();
-
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        surfaceTintColor: Colors.white,
-        // Removido o botão de Clientes antigo daqui, pois agora temos a aba Perfil
-        actions: const [
-           SizedBox(width: 16),
-        ],
-        title: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: _tipoEntrega,
-            icon: const Icon(Icons.keyboard_arrow_down, color: Colors.deepOrange, size: 20),
-            style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 14),
-            onChanged: (String? newValue) => setState(() => _tipoEntrega = newValue!),
-            items: <String>['Casa', 'Retirar', 'Trabalho'].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // --- 1. CABEÇALHO ---
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(_tipoEntrega == value ? 'Entregar em ' : '', 
-                        style: TextStyle(fontWeight: FontWeight.normal, color: Colors.grey[600], fontSize: 12)),
-                    Text(value),
+                    InkWell(
+                      onTap: _alternarEntrega,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _tipoEntrega == 'Entrega em Casa' ? "Entregar em:" : "Retirar em:",
+                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  _tipoEntrega == 'Entrega em Casa' ? "Casa" : "Loja",
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.deepOrange),
+                                ),
+                                const Icon(Icons.keyboard_arrow_down, color: Colors.deepOrange, size: 20),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        child: Icon(Icons.person, color: Colors.white),
+                      ),
+                      onPressed: _abrirPerfil,
+                    ),
                   ],
                 ),
-              );
-            }).toList(),
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: TextField(
-              onChanged: (value) => setState(() => _termoBusca = value),
-              decoration: InputDecoration(
-                hintText: 'Buscar comida ou restaurante',
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-                prefixIcon: const Icon(Icons.search, color: Colors.red),
-                filled: true,
-                fillColor: const Color(0xFFF2F2F2),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
+              ),
+
+              // --- 2. BARRA DE BUSCA ---
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Buscar em FlashFood...',
+                    prefixIcon: const Icon(Icons.search, color: Colors.deepOrange),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                  ),
                 ),
-                contentPadding: EdgeInsets.zero,
               ),
-            ),
+
+              // --- 3. BANNER PRINCIPAL ---
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
+                child: Container(
+                  height: 160,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.deepOrange.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                    image: DecorationImage(
+                      image: const NetworkImage(
+                        'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?q=80&w=1470&auto=format&fit=crop',
+                      ),
+                      fit: BoxFit.cover,
+                      colorFilter: ColorFilter.mode(
+                        Colors.deepOrange.withOpacity(0.2), 
+                        BlendMode.hardLight
+                      ),
+                    ),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(20.0),
+                    alignment: Alignment.bottomLeft,
+                    child: const Text(
+                      "Ofertas Imperdíveis!",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // --- 4. SEÇÃO DE OFERTAS ---
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Promoções do Dia 🔥",
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    TextButton(onPressed: () {}, child: const Text("Ver tudo")),
+                  ],
+                ),
+              ),
+
+              SizedBox(
+                height: 220,
+                child: Consumer<ProductProvider>(
+                  builder: (ctx, provider, _) {
+                    final products = provider.products;
+                    // Pega até 5 produtos
+                    final promoProducts = products.take(5).toList();
+
+                    if (promoProducts.isEmpty) {
+                      return const Center(child: Text("Carregando ofertas..."));
+                    }
+
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.only(left: 16),
+                      itemCount: promoProducts.length,
+                      itemBuilder: (ctx, i) {
+                        final product = promoProducts[i];
+                        return Container(
+                          width: 140,
+                          margin: const EdgeInsets.only(right: 15, bottom: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.15),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              )
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                                child: Image.network(
+                                  product.imagemUrl,
+                                  height: 100,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_,__,___) => Container(color: Colors.grey[200]),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      product.nome,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      product.categoria,
+                                      style: TextStyle(color: Colors.grey[600], fontSize: 11),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "R\$ ${product.preco.toStringAsFixed(2)}",
+                                          style: const TextStyle(
+                                            color: Colors.green, 
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        const Icon(Icons.local_offer, size: 14, color: Colors.deepOrange)
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 20),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  "Toque na aba 'Restaurantes' abaixo para ver todas as lojas.",
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_termoBusca.isEmpty) ...[
-              _buildCategorySection(context),
-              _buildBannerSection(),
-            ],
-
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    _termoBusca.isEmpty ? 'Destaques' : 'Resultados para "$_termoBusca"',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  if (_termoBusca.isEmpty)
-                    Text('Ver mais', style: TextStyle(color: Colors.red[700], fontSize: 12)),
-                ],
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: produtos.isEmpty
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(40), 
-                        child: Text("Nenhum item encontrado.", style: TextStyle(color: Colors.grey))
-                      )
-                    )
-                  : GridView.builder(
-                      shrinkWrap: true, 
-                      physics: const NeverScrollableScrollPhysics(), 
-                      itemCount: produtos.length,
-                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 300,
-                        childAspectRatio: 0.8,
-                        crossAxisSpacing: 20,
-                        mainAxisSpacing: 20,
-                      ),
-                      itemBuilder: (ctx, i) => ProductCard(produto: produtos[i]),
-                    ),
-            ),
-            const SizedBox(height: 40),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategorySection(BuildContext context) {
-    final categorias = [
-      {'nome': 'Marmita', 'img': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150&q=80'},
-      {'nome': 'Lanches', 'img': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=150&q=80'},
-      {'nome': 'Pizza', 'img': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=150&q=80'},
-      {'nome': 'Japonesa', 'img': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=150&q=80'},
-      {'nome': 'Doces', 'img': 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=150&q=80'},
-    ];
-
-    return Container(
-      height: 110,
-      margin: const EdgeInsets.only(top: 10),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        itemCount: categorias.length,
-        itemBuilder: (ctx, index) {
-          final cat = categorias[index];
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: GestureDetector(
-              onTap: () => setState(() => _termoBusca = cat['nome']!),
-              child: Column(
-                children: [
-                  Container(
-                    width: 65,
-                    height: 65,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      image: DecorationImage(image: NetworkImage(cat['img']!), fit: BoxFit.cover),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(cat['nome']!, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildBannerSection() {
-    final banners = [
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80',
-      'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80',
-    ];
-
-    return SizedBox(
-      height: 140,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: banners.length,
-        itemBuilder: (ctx, index) {
-          return Container(
-            width: 280,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              image: DecorationImage(image: NetworkImage(banners[index]), fit: BoxFit.cover),
-            ),
-          );
-        },
       ),
     );
   }

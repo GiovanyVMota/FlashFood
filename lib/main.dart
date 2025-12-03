@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'routes/app_routes.dart';
-import 'providers/client_provider.dart';
 import 'providers/product_provider.dart';
-import 'views/home_page.dart';
-import 'views/clients_page.dart';
+import 'providers/restaurante_provider.dart';
+import 'providers/auth_provider.dart'; // Importe o AuthProvider
 import 'views/main_navigation.dart';
-import 'views/products_page.dart';
-import 'views/form_cliente.dart';
+import 'views/restaurants_page.dart';
+import 'views/restaurant_menu_page.dart';
 import 'views/form_produto.dart';
+import 'views/form_restaurante.dart';
+import 'views/login_page.dart'; // Importe a Login Page
 
 void main() {
-  // Removido: await Firebase.initializeApp();
   runApp(const FlashFoodApp());
 }
 
@@ -22,13 +22,15 @@ class FlashFoodApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ClientProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()), // Adicionado Auth
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => RestaurantProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'FlashFood',
         theme: ThemeData(
+          // ... (seu tema existente)
           colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.deepOrange,
             primary: Colors.deepOrange,
@@ -42,23 +44,14 @@ class FlashFoodApp extends StatelessWidget {
             elevation: 0,
             surfaceTintColor: Colors.white,
           ),
-          cardTheme: CardThemeData(
-            elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            color: Colors.white,
-            surfaceTintColor: Colors.white,
-          ),
-          textTheme: const TextTheme(
-            titleLarge: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-            bodyMedium: TextStyle(color: Colors.black87),
-          ),
         ),
         routes: {
           AppRoutes.home: (ctx) => const MainNavigation(),
-          AppRoutes.clients: (ctx) => const ClientsPage(),
-          AppRoutes.products: (ctx) => const ProductsPage(),
-          AppRoutes.formCliente: (ctx) => const FormCliente(),
+          AppRoutes.restaurants: (ctx) => const RestaurantsPage(),
+          AppRoutes.restaurantMenu: (ctx) => const RestaurantMenuPage(),
           AppRoutes.formProduto: (ctx) => const FormProduto(),
+          AppRoutes.formRestaurante: (ctx) => const FormRestaurante(),
+          AppRoutes.login: (ctx) => const LoginPage(), // Rota registrada
         },
       ),
     );

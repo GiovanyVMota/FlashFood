@@ -1,15 +1,30 @@
 import 'dart:convert';
+import 'dart:io'; // Import necessário para Platform
+import 'package:flutter/foundation.dart'; // Import para kIsWeb
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const baseUrl = 'http://localhost:3000'; 
+  // Ajusta a URL automaticamente dependendo da plataforma
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:3000';
+    } else if (Platform.isAndroid) {
+      return 'http://10.0.2.2:3000';
+    } else {
+      return 'http://localhost:3000';
+    }
+  }
 
   static Future<List<dynamic>> get(String endpoint) async {
-    final response = await http.get(Uri.parse('$baseUrl/$endpoint'));
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Erro ao buscar dados de $endpoint');
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/$endpoint'));
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Erro ${response.statusCode} ao buscar dados de $endpoint');
+      }
+    } catch (e) {
+      throw Exception('Erro de conexão: $e');
     }
   }
 

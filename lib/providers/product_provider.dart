@@ -4,23 +4,18 @@ import '../services/api_service.dart';
 
 class ProductProvider with ChangeNotifier {
   List<Product> _products = [];
-  String _categoriaSelecionada = 'Todas';
 
-  List<Product> get products {
-    if (_categoriaSelecionada == 'Todas') return [..._products];
-    return _products
-        .where((p) => p.categoria == _categoriaSelecionada)
-        .toList();
-  }
+  List<Product> get products => [..._products];
 
-  void filtrarPorCategoria(String categoria) {
-    _categoriaSelecionada = categoria;
-    notifyListeners();
-  }
-
-  Future<void> fetchProducts() async {
+  // Busca produtos, opcionalmente filtrando por restaurante
+  Future<void> fetchProducts([String? restaurantId]) async {
     try {
-      final dados = await ApiService.get('products');
+      String endpoint = 'products';
+      if (restaurantId != null && restaurantId.isNotEmpty) {
+        endpoint += '?restaurant_id=$restaurantId';
+      }
+      
+      final dados = await ApiService.get(endpoint);
       _products = dados.map((item) => Product.fromJson(item)).toList();
       notifyListeners();
     } catch (e) {
@@ -31,21 +26,26 @@ class ProductProvider with ChangeNotifier {
   Future<void> addProduct(Product produto) async {
     try {
       await ApiService.post('products', produto.toJson());
-      await fetchProducts(); // Recarrega a lista atualizada
+      // Recarrega a lista do restaurante específico
+      await fetchProducts(produto.restaurantId); 
     } catch (e) {
       print('Erro ao adicionar: $e');
+      rethrow;
     }
   }
 
+  // Método restaurado (Correção do erro)
   Future<void> updateProduct(Product produto) async {
     try {
       await ApiService.put('products', produto.id, produto.toJson());
-      await fetchProducts();
+      await fetchProducts(produto.restaurantId);
     } catch (e) {
       print('Erro ao atualizar: $e');
+      rethrow;
     }
   }
 
+  // Método restaurado (Correção do erro)
   Future<void> removeProduct(String id) async {
     try {
       await ApiService.delete('products', id);
@@ -53,6 +53,7 @@ class ProductProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       print('Erro ao remover: $e');
+      rethrow;
     }
   }
 }

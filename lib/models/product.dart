@@ -5,7 +5,8 @@ class Product {
   final double preco;
   final String categoria;
   final String imagemUrl;
-  final String dataAtualizado;
+  final String restaurantId;
+  final String dataAtualizado; // Novo Campo
 
   Product({
     required this.id,
@@ -14,28 +15,32 @@ class Product {
     required this.preco,
     required this.categoria,
     required this.imagemUrl,
+    this.restaurantId = '',
     this.dataAtualizado = '',
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json['id'].toString(),
-      nome: json['nome'],
-      descricao: json['descricao'],
+      nome: json['nome'] ?? '',
+      descricao: json['descricao'] ?? '',
       preco: double.tryParse(json['preco'].toString()) ?? 0.0,
       categoria: json['categoria'] ?? '',
       imagemUrl: json['imagemUrl'] ?? '',
-      dataAtualizado: json['data_atualizado'] ?? '',
+      restaurantId: json['restaurant_id']?.toString() ?? '',
+      // O banco envia datas no formato ISO ou string padrão
+      dataAtualizado: json['data_atualizado']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'nome': nome,
-        'descricao': descricao,
-        'preco': preco,
-        'categoria': categoria,
-        'imagemUrl': imagemUrl,
-        // A data é gerada automaticamente pelo MySQL
-      };
+    'id': id,
+    'nome': nome,
+    'descricao': descricao,
+    'preco': preco,
+    'categoria': categoria,
+    'imagemUrl': imagemUrl,
+    'restaurant_id': restaurantId,
+    // Não enviamos dataAtualizado pois o MySQL gerencia isso
+  };
 }
